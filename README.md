@@ -48,3 +48,7 @@ All from Go’s standard library:
    ```
 3. Enter your name and start chatting!
 4. Type `exit` to leave the chat.
+
+
+https://github.com/user-attachments/assets/1521ad13-c593-4f33-ad38-dcc7c15319d6
+
