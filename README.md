@@ -46,5 +46,7 @@ All from Go’s standard library:
 4. Type `exit` to leave the chat.
 
 
-https://github.com/user-attachments/assets/1521ad13-c593-4f33-ad38-dcc7c15319d6
+
+https://github.com/user-attachments/assets/c7303959-ee35-4392-a4f2-70a8bf804ed1
+
 
