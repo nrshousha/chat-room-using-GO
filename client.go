@@ -2,65 +2,57 @@ package main
 
 import (
 	"bufio"
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"log"
-	"net/http"
+	"net/rpc"
 	"os"
 	"strings"
-	"time"
 )
 
 type Message struct {
-	Author  string    `json:"author"`
-	Content string    `json:"content"`
-	Time    time.Time `json:"time"`
+	Name string
+	Text string
 }
 
+var messages []Message
+
 func main() {
-	fmt.Print("Enter your name: ")
+	client, err := rpc.Dial("tcp", "localhost:6700")
+	if err != nil {
+		fmt.Println("Error connecting to server:", err)
+		return
+	}
+	defer client.Close()
+
 	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Print("Enter your name: ")
 	name, _ := reader.ReadString('\n')
 	name = strings.TrimSpace(name)
 
-	fmt.Println("Type messages (type 'exit' to quit):")
+	fmt.Printf("Welcome %s! You've joined the chat. Type a message to see the chat history.\n", name)
 
 	for {
-		fmt.Print("> ")
-		text, _ := reader.ReadString('\n')
-		text = strings.TrimSpace(text)
+		fmt.Print("Enter message (or 'exit' to quit): ")
+		input, _ := reader.ReadString('\n')
+		input = strings.TrimSpace(input)
 
-		if text == "" {
-			continue
-		}
-
-		if strings.ToLower(text) == "exit" {
-			fmt.Println("👋 Exiting chat.")
+		if input == "exit" {
+			fmt.Println("Exiting chat...")
 			break
 		}
 
-		msg := Message{
-			Author:  name,
-			Content: text,
-			Time:    time.Now(),
-		}
+		var reply []string
+		msg := Message{Name: name, Text: input}
 
-		body, _ := json.Marshal(msg)
-		resp, err := http.Post("http://localhost:8080/send", "application/json", bytes.NewBuffer(body))
+		err = client.Call("ChatServer.SendMessage", msg, &reply)
 		if err != nil {
-			log.Println("❌ Failed to send message:", err)
-			time.Sleep(2 * time.Second)
-			continue
+			fmt.Println("Error sending message:", err)
+			break
 		}
-		defer resp.Body.Close()
-
-		var history []Message
-		json.NewDecoder(resp.Body).Decode(&history)
 
 		fmt.Println("\n--- Chat History ---")
-		for _, m := range history {
-			fmt.Printf("[%s] %s: %s\n", m.Time.Format("15:04"), m.Author, m.Content)
+		for _, m := range reply {
+			fmt.Println(m)
 		}
 		fmt.Println("--------------------")
 	}

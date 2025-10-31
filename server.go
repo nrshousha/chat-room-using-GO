@@ -1,51 +1,54 @@
 package main
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
-	"log"
-	"net/http"
-	"time"
+	"net"
+	"net/rpc"
 )
 
+type ChatServer struct {
+	messages []string
+}
+
 type Message struct {
-	Author  string    `json:"author"`
-	Content string    `json:"content"`
-	Time    time.Time `json:"time"`
+	Name string
+	Text string
 }
 
-var messages []Message
-
-func sendHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Only POST allowed", http.StatusMethodNotAllowed)
-		return
+func (c *ChatServer) SendMessage(msg Message, reply *[]string) error {
+	if msg.Text == "" {
+		return errors.New("empty message")
 	}
 
-	var msg Message
-	err := json.NewDecoder(r.Body).Decode(&msg)
-	if err != nil {
-		http.Error(w, "Invalid message format", http.StatusBadRequest)
-		return
-	}
+	formatted := fmt.Sprintf("%s: %s", msg.Name, msg.Text)
+	c.messages = append(c.messages, formatted)
 
-	msg.Time = time.Now()
-	messages = append(messages, msg)
-	fmt.Printf("[%s] %s: %s\n", msg.Time.Format("15:04:05"), msg.Author, msg.Content)
+	fmt.Println(formatted)
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(messages)
-}
-
-func historyHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(messages)
+	*reply = c.messages
+	return nil
 }
 
 func main() {
-	http.HandleFunc("/send", sendHandler)
-	http.HandleFunc("/history", historyHandler)
+	chatServer := new(ChatServer)
+	rpc.Register(chatServer)
 
-	fmt.Println("🚀 Chat server started on http://localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	listener, err := net.Listen("tcp", ":6700")
+	if err != nil {
+		fmt.Println("Error starting server:", err)
+		return
+	}
+	defer listener.Close()
+
+	fmt.Println("Chat server running on port 6700...")
+
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			fmt.Println("Connection error:", err)
+			continue
+		}
+		go rpc.ServeConn(conn)
+	}
 }
