@@ -16,10 +16,6 @@ You can open many terminals and run `client.go` in each one to chat between them
 * When a **client** sends a message, the server adds it to the chat and sends back the full chat history.
 * The client then prints all messages so you can see what everyone said.
 
-Basically:
-
-> you → server → everyone → back to you
-
 ---
 
 ## Used Packages
