@@ -1,4 +1,5 @@
 # Simple Chatroom in Go
+
 [Video showing chatroom working live](https://github.com/user-attachments/assets/c7303959-ee35-4392-a4f2-70a8bf804ed1
 )
 
@@ -48,7 +49,8 @@ All from Go’s standard library:
 4. Type `exit` to leave the chat.
 
 
-#A Dockerized Solution
+# A Dockerized Solution
+
 [Docker image for server](https://hub.docker.com/r/nrshousha/rpc-server
 )
 
