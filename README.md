@@ -1,4 +1,6 @@
 # Simple Chatroom in Go
+[Video showing chatroom working live](https://github.com/user-attachments/assets/c7303959-ee35-4392-a4f2-70a8bf804ed1
+)
 
 This project is a small chatroom made with **Go**.
 It has two files:
@@ -46,7 +48,18 @@ All from Go’s standard library:
 4. Type `exit` to leave the chat.
 
 
+#A Dockerized Solution
+[Docker image for server](https://hub.docker.com/r/nrshousha/rpc-server
+)
 
-https://github.com/user-attachments/assets/c7303959-ee35-4392-a4f2-70a8bf804ed1
+   ```bash
+   docker pull nrshousha/rpc-server
+   ```
 
-
+   ```bash
+   docker run -p 6700:6700 nrshousha/rpc-server:latest
+   ```
+Run the client locally from you terminal and connect them
+   ```bash
+   go run client.go
+   ```
